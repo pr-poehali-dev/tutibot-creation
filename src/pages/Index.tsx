@@ -15,6 +15,7 @@ type Message = {
   sender: 'user' | 'bot';
   timestamp: Date;
   image?: string;
+  images?: string[];
 };
 
 type Chat = {
@@ -178,34 +179,48 @@ export default function Index() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const imageUrls: string[] = [];
+    let filesProcessed = 0;
+
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
-        const imageMessage: Message = {
-          id: Date.now().toString(),
-          text: 'Отправил фото',
-          sender: 'user',
-          timestamp: new Date(),
-          image: imageUrl,
-        };
-        updateCurrentChat(msgs => [...msgs, imageMessage]);
-        
-        setIsTyping(true);
-        setTimeout(() => {
-          const botResponse: Message = {
-            id: (Date.now() + 1).toString(),
-            text: 'Отличное фото! Я вижу изображение и могу его проанализировать. Что вы хотите узнать о нём?',
-            sender: 'bot',
+        imageUrls.push(imageUrl);
+        filesProcessed++;
+
+        if (filesProcessed === files.length) {
+          const imageMessage: Message = {
+            id: Date.now().toString(),
+            text: files.length === 1 ? 'Отправил фото' : `Отправил ${files.length} фото`,
+            sender: 'user',
             timestamp: new Date(),
+            images: imageUrls,
           };
-          updateCurrentChat(msgs => [...msgs, botResponse]);
-          setIsTyping(false);
-        }, 1500);
+          updateCurrentChat(msgs => [...msgs, imageMessage]);
+          
+          setIsTyping(true);
+          setTimeout(() => {
+            const botResponse: Message = {
+              id: (Date.now() + 1).toString(),
+              text: files.length === 1 
+                ? 'Отличное фото! Я вижу изображение и могу его проанализировать. Что вы хотите узнать о нём?' 
+                : `Отлично! Я вижу ${files.length} изображения и могу их проанализировать. Что вы хотите узнать о них?`,
+              sender: 'bot',
+              timestamp: new Date(),
+            };
+            updateCurrentChat(msgs => [...msgs, botResponse]);
+            setIsTyping(false);
+          }, 1500);
+        }
       };
       reader.readAsDataURL(file);
-    }
+    });
+
+    e.target.value = '';
   };
 
   const handleRestartChat = () => {
@@ -410,6 +425,18 @@ export default function Index() {
                 {message.image && (
                   <img src={message.image} alt="Uploaded" className="rounded-lg mb-2 max-w-full" />
                 )}
+                {message.images && message.images.length > 0 && (
+                  <div className={`grid gap-2 mb-2 ${
+                    message.images.length === 1 ? 'grid-cols-1' :
+                    message.images.length === 2 ? 'grid-cols-2' :
+                    message.images.length === 3 ? 'grid-cols-3' :
+                    'grid-cols-2'
+                  }`}>
+                    {message.images.map((img, idx) => (
+                      <img key={idx} src={img} alt={`Uploaded ${idx + 1}`} className="rounded-lg w-full h-32 object-cover" />
+                    ))}
+                  </div>
+                )}
                 <p className="text-sm leading-relaxed">{message.text}</p>
                 <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                   {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
@@ -444,6 +471,7 @@ export default function Index() {
             ref={fileInputRef}
             onChange={handleImageUpload}
             accept="image/*"
+            multiple
             className="hidden"
           />
           
