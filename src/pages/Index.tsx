@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -455,12 +456,18 @@ export default function Index() {
             Отправить
           </Button>
 
-          <Input
+          <Textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder={isRecording ? "Говорите..." : "Введите сообщение..."}
-            className="flex-1 h-12"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder={isRecording ? "Говорите..." : "Введите сообщение... (Enter — отправить, Shift+Enter — новая строка)"}
+            className="flex-1 min-h-12 max-h-32 resize-none"
+            rows={1}
           />
 
           <Button
