@@ -460,7 +460,7 @@ export default function Index() {
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder={isRecording ? "Говорите..." : "Введите сообщение..."}
-            className="flex-1"
+            className="flex-1 h-12"
           />
 
           <Button
