@@ -88,9 +88,37 @@ export default function Index() {
 
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.lang = 'ru-RU';
+      recognitionInstance.interimResults = false;
+      
+      recognitionInstance.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(prev => prev + ' ' + transcript);
+        setIsRecording(false);
+      };
+      
+      recognitionInstance.onerror = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionInstance.onend = () => {
+        setIsRecording(false);
+      };
+      
+      setRecognition(recognitionInstance);
+    }
+  }, []);
 
   const currentChat = chats.find(c => c.id === currentChatId);
   const messages = currentChat?.messages || [];
@@ -206,6 +234,21 @@ export default function Index() {
     if (currentChatId === chatId) {
       const remainingChats = chats.filter(c => c.id !== chatId);
       setCurrentChatId(remainingChats[0]?.id || '1');
+    }
+  };
+
+  const handleVoiceInput = () => {
+    if (!recognition) {
+      alert('Голосовой ввод не поддерживается вашим браузером');
+      return;
+    }
+    
+    if (isRecording) {
+      recognition.stop();
+      setIsRecording(false);
+    } else {
+      recognition.start();
+      setIsRecording(true);
     }
   };
 
@@ -411,11 +454,20 @@ export default function Index() {
             <Icon name="Image" size={22} />
           </Button>
 
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleVoiceInput}
+            className={`flex-shrink-0 ${isRecording ? 'text-red-500 animate-pulse' : ''}`}
+          >
+            <Icon name={isRecording ? "MicOff" : "Mic"} size={22} />
+          </Button>
+
           <Input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Введите сообщение..."
+            placeholder={isRecording ? "Говорите..." : "Введите сообщение..."}
             className="flex-1"
           />
 
