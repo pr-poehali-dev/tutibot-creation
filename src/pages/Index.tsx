@@ -445,6 +445,24 @@ export default function Index() {
             accept="image/*"
             className="hidden"
           />
+          
+          <Button
+            onClick={handleSendMessage}
+            disabled={!inputText.trim()}
+            className={`flex-shrink-0 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
+          >
+            <Icon name="Send" size={20} className="mr-2" />
+            Отправить
+          </Button>
+
+          <Input
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder={isRecording ? "Говорите..." : "Введите сообщение..."}
+            className="flex-1"
+          />
+
           <Button
             variant="ghost"
             size="icon"
@@ -461,23 +479,6 @@ export default function Index() {
             className={`flex-shrink-0 ${isRecording ? 'text-red-500 animate-pulse' : ''}`}
           >
             <Icon name={isRecording ? "MicOff" : "Mic"} size={22} />
-          </Button>
-
-          <Input
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder={isRecording ? "Говорите..." : "Введите сообщение..."}
-            className="flex-1"
-          />
-
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputText.trim()}
-            className={`flex-shrink-0 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
-          >
-            <Icon name="Send" size={20} className="mr-2" />
-            Отправить
           </Button>
         </div>
       </div>
