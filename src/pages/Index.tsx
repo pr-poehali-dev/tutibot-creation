@@ -449,7 +449,7 @@ export default function Index() {
           <Button
             onClick={handleSendMessage}
             disabled={!inputText.trim()}
-            className={`flex-shrink-0 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
+            className={`flex-shrink-0 h-12 px-6 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
           >
             <Icon name="Send" size={20} className="mr-2" />
             Отправить
