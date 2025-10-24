@@ -438,7 +438,7 @@ export default function Index() {
       </ScrollArea>
 
       <div className="border-t bg-white p-4 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-center gap-2">
+        <div className="max-w-4xl mx-auto">
           <input
             type="file"
             ref={fileInputRef}
@@ -447,46 +447,57 @@ export default function Index() {
             className="hidden"
           />
           
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputText.trim()}
-            className={`flex-shrink-0 h-12 px-6 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
-          >
-            <Icon name="Send" size={20} className="mr-2" />
-            Отправить
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputText.trim()}
+              className={`flex-shrink-0 h-12 px-6 bg-gradient-to-r ${selectedTheme.gradient} hover:opacity-90 transition-opacity`}
+            >
+              <Icon name="Send" size={20} className="mr-2" />
+              Отправить
+            </Button>
 
-          <Textarea
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder={isRecording ? "Говорите..." : "Введите сообщение... (Enter — отправить, Shift+Enter — новая строка)"}
-            className="flex-1 min-h-12 max-h-32 resize-none"
-            rows={1}
-          />
+            <div className="flex-1 relative">
+              <Textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                placeholder={isRecording ? "Говорите..." : "Введите сообщение... (Enter — отправить, Shift+Enter — новая строка)"}
+                className="w-full min-h-12 max-h-32 resize-none pr-12"
+                rows={1}
+              />
+              {inputText.length > 100 && (
+                <div className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded ${
+                  inputText.length > 1000 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {inputText.length}
+                </div>
+              )}
+            </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-shrink-0"
-          >
-            <Icon name="Image" size={22} />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-shrink-0"
+            >
+              <Icon name="Image" size={22} />
+            </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleVoiceInput}
-            className={`flex-shrink-0 ${isRecording ? 'text-red-500 animate-pulse' : ''}`}
-          >
-            <Icon name={isRecording ? "MicOff" : "Mic"} size={22} />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleVoiceInput}
+              className={`flex-shrink-0 ${isRecording ? 'text-red-500 animate-pulse' : ''}`}
+            >
+              <Icon name={isRecording ? "MicOff" : "Mic"} size={22} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
